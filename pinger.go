@@ -5,7 +5,7 @@ import (
 	"net"
 	"container/list"
 	
-	"github.com/annanay25/go-fastping"
+	"github.com/tatsushid/go-fastping"
 	"github.com/annanay25/go-DHT"
 )
 
