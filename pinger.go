@@ -21,9 +21,8 @@ if err != nil {
 }
 p.AddIPAddr(ra)
 p.OnRecv = func(addr *net.IPAddr, rtt time.Duration) {
-	//update the routing_table and move the peer up/down depending on the RTT.
+	//update the routing_table and move the peer up/down depending on the RTT. For now it is just check if the last peer is alive. If not, delete him from the routing table.
 	fmt.Printf("IP Addr: %s receive, RTT: %v\n", addr.String(), rtt)
-	
 }
 p.OnIdle = func() {
 	//delete the peer from the routing_table.
