@@ -1,10 +1,12 @@
 //setting up the database and querying it.
+package go_DHT
 
 import (
 	"net"
 	"fmt"
 	"log"
 	"os"
+	
 	"github.com/boltdb/bolt"
 	"github.com/annanay25/go-DHT/routing_table"
 )
@@ -18,31 +20,33 @@ func setupDB() {
     defer db.Close()
 }
 
-e := (func addKV() error {
+func addKV(key string, value contact) error {
 	err := db.Update(func(tx *bolt.Tx) error {
-    b, err := tx.CreateBucket([]byte(reqObj.params.bucketName))
+    b, err := tx.CreateBucketIfNotExists([]byte("Files"))
     if err != nil {
         return err
     }
-    if err := b.Put([]byte(reqObj.params.key), []byte(reqObj.params.value)); err != nil {
+    if err := b.Put([]byte(key), []byte(value)); err != nil {
         return err
     }
     return nil
 	})
 	return err
-})
-
-if e!= nil {
-	//write error handling later
 }
 
 //buckets have been created. Now, query them.
-func queryKV() []contact {
-	db.View(func(tx *bolt.Tx) error {
-        value := tx.Bucket([]byte(reqObj.params.bucketName)).Get([]byte(reqObj.params.key))
-        fmt.Printf("The value of '%s' is: %s\n", req.Obj.params.key, value)
-        //pass this k/v pair to the http response object now.
-        return nil
+func queryKV(key string) ([]contact, error) {
+	cont, err := db.View(func(tx *bolt.Tx) ([]contact, error) {
+        retValue := tx.Bucket([]byte("Files")).Get([]byte(key))
+        //fmt.Printf("The value of '%s' is: %v\n", key, retValue)
+        return (retValue,nil)
   })
+  if err != nil {
+  	fmt.Printf("Internal DB error - %v", err)
+		return (nil, err)
+	}
+	else {
+		return (cont, nil)
+	}
 }
 

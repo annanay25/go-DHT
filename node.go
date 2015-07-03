@@ -34,4 +34,16 @@ func (first NodeID) NodeDist(second NodeID) (dist NodeID) {
   return dist;
 }
 
+//function that returns the number of leading zeros in the XOR of two NodeIDs. Which in our implementation is also the bucket number of that respective node.
+func (node NodeID) PrefixLen() (ret int) {
+  for i := 0; i < IdLength; i++ {
+    for j := 0; j < 8; j++ {
+      if (node[i] >> uint8(7 - j)) & 0x1 != 0 {
+        return i * 8 + j;
+      }
+    }
+  }
+  return IdLength * 8 - 1;
+}
+
 
