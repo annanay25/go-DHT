@@ -28,4 +28,10 @@ func NewRandomNodeID() (ret NodeID) {
 
 //distance metric is the XOR of the nodeIDs:
 func (first NodeID) NodeDist(second NodeID) (dist NodeID) {
-	for i:= 0; i < 
+	for i:= 0; i < IdLength; i++ {
+    dist[i] = first[i] ^ second [i];
+  }
+  return dist;
+}
+
+
