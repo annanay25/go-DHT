@@ -1,0 +1,26 @@
+This document is self drafted just for personal reference. Please dont mistake this for official documentation.
+
+The most important part of the DHT would be to include a new peer in the torrent. A peer cannot simply contact a central server to 'register' itself with the torrent. Instead, a new peer goes through a bootstrapping process to become a part of the torrent. To do so, it must first find a 'bootstrapping node' ie.. it MUST know the ipaddress and port number of a node which is already a part of the network. Once it has this information, it must perform a Find-node operation with its own NodeID. This way, it can fill its own k-buckets with the NodeIDs obtained by recursively querying the bootstrapping node's k-buckets. This will also help to enter the new node's ID into the routing tables of the queried nodes. (The level to which the search will proceed needs to be optimised. As of now, the bootstrap process shall continue till any of the k-buckets of the new node are empty.)
+
+When a node makes a GET request to the other nodes in the network the following things can be requested:
+1. Ping check to update its own Routing table.
+2. An k/v addition to the DHT (A call to store in the DHT)
+3. Value retreival given the key (Querying the DB)
+4. Find-node. This is a special version for Case 3 wherein the node returns a set of peers close to the infoHash which may have the key value
+5. Logging any torrent actions with a central tracker, the IP of which shall be given to each node.
+
+Now let us dive deep into each of these cases:
+1. For a ping check, I have used a fastping library which acts as part of an http daemon that is running on every node. This function is used to update its own routing table. The routing table is sorted based on the RTT of each node present in it. Any dormant node is deleted from the DHT and a new incoming node is added. 
+For a new node to join the network, it must have the IP address and port number of atleast one node that is already part of the network. It must then perform a Find node operation which will 
+	a) Add its own address to the routing tables of some of the nodes that it will come accross in the iterative process.
+	b) Add the addresses of these nodes to its own k-buckets of the routing table.
+
+2. For a k/v addition to the DHT, a node will perform an operation which will find the node closest to the InfoHash. (This need not be in its own routing table, this node could be anywhere in the network. TODO: Decide level of recursive testing that the node must perform to come across this 'closest' node)
+
+3. For value retreival of a key, a node must query the bucket of nodes which are closest to the InfoHash. Like the addition to the DHT, even a retreival must be able to locate the closest node within some limited number of recursive levels. (TODO: Same as func 2)
+
+4. If the bucket list of the querying peer does not have the value of the queried InfoHash, then the function boils down to a Find-node. In this case, the bucket list of peers from the querying peer will echo the query to their respective bucket lists. This process is iterative and the level of nesting is yet to be decided.
+
+5. Self explanatory. Any transaction shall be logged by a central tracker. At least that is the current setup.
+
+As I have mentioned earlier, this is a naive and self defined architechture. Suggestions are welcome.
